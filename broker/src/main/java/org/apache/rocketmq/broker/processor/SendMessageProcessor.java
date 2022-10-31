@@ -97,6 +97,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
                     return errorResponse;
                 }
 
+                //保存消息
                 RemotingCommand response;
                 if (requestHeader.isBatch()) {
                     response = this.sendBatchMessage(ctx, request, traceContext, requestHeader, mappingContext,
@@ -220,6 +221,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
         final byte[] body = request.getBody();
 
         int queueIdInt = requestHeader.getQueueId();
+        //选择topic
         TopicConfig topicConfig = this.brokerController.getTopicConfigManager().selectTopicConfig(requestHeader.getTopic());
 
         if (queueIdInt < 0) {
@@ -277,6 +279,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
             if (sendTransactionPrepareMessage) {
                 asyncPutMessageFuture = this.brokerController.getTransactionalMessageService().asyncPrepareMessage(msgInner);
             } else {
+                //K2 存储消息
                 asyncPutMessageFuture = this.brokerController.getMessageStore().asyncPutMessage(msgInner);
             }
 

@@ -105,6 +105,7 @@ public class BrokerStartup {
 
             nettyClientConfig.setUseTLS(Boolean.parseBoolean(System.getProperty(TLS_ENABLE,
                 String.valueOf(TlsSystemConfig.tlsMode == TlsMode.ENFORCING))));
+            //k1 绑定端口
             nettyServerConfig.setListenPort(10911);
             final MessageStoreConfig messageStoreConfig = new MessageStoreConfig();
 
@@ -119,10 +120,12 @@ public class BrokerStartup {
                     CONFIG_FILE_HELPER.setFile(file);
                     configFile = file;
                     BrokerPathConfigHelper.setBrokerConfigPath(file);
+                    //K1 通过-c 命令指定配置文件并加载配置
                     properties = CONFIG_FILE_HELPER.loadConfig();
                 }
             }
 
+            //配置封装成对象
             if (properties != null) {
                 properties2SystemEnv(properties);
                 MixAll.properties2Object(properties, brokerConfig);
@@ -138,6 +141,7 @@ public class BrokerStartup {
                 System.exit(-2);
             }
 
+            //检查namesrv 的地址是否正确
             String namesrvAddr = brokerConfig.getNamesrvAddr();
             if (null != namesrvAddr) {
                 try {
@@ -152,7 +156,7 @@ public class BrokerStartup {
                     System.exit(-3);
                 }
             }
-
+            //sync 同步复制的集群需要设置brokerId
             if (!brokerConfig.isEnableControllerMode()) {
                 switch (messageStoreConfig.getBrokerRole()) {
                     case ASYNC_MASTER:
@@ -174,7 +178,7 @@ public class BrokerStartup {
             if (messageStoreConfig.isEnableDLegerCommitLog()) {
                 brokerConfig.setBrokerId(-1);
             }
-
+            //k1 HA 的端口10911- 1 用来做主从数据同步的
             messageStoreConfig.setHaListenPort(nettyServerConfig.getListenPort() + 1);
             LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
             JoranConfigurator configurator = new JoranConfigurator();
@@ -187,6 +191,7 @@ public class BrokerStartup {
             if (brokerConfig.isIsolateLogEnable() && messageStoreConfig.isEnableDLegerCommitLog()) {
                 System.setProperty("brokerLogDir", brokerConfig.getBrokerName() + "_" + messageStoreConfig.getdLegerSelfId());
             }
+            // broker 的 logback配置目录
             configurator.doConfigure(brokerConfig.getRocketmqHome() + "/conf/logback_broker.xml");
 
             if (commandLine.hasOption('p')) {
@@ -213,6 +218,7 @@ public class BrokerStartup {
 
             brokerConfig.setInBrokerContainer(false);
 
+            //k1 创建 BrokerController
             final BrokerController controller = new BrokerController(
                 brokerConfig,
                 nettyServerConfig,
@@ -220,13 +226,14 @@ public class BrokerStartup {
                 messageStoreConfig);
             // remember all configs to prevent discard
             controller.getConfiguration().registerConfig(properties);
-
+            //k1 初始化 BrokerController
             boolean initResult = controller.initialize();
             if (!initResult) {
                 controller.shutdown();
                 System.exit(-3);
             }
 
+            //注册一个 关闭服务的钩子，做善后工作的
             Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
                 private volatile boolean hasShutdown = false;
                 private AtomicInteger shutdownTimes = new AtomicInteger(0);

@@ -719,15 +719,22 @@ public class BrokerController {
 
     public boolean initialize() throws CloneNotSupportedException {
 
+        //从本地store/config文件夹中加载各种配置
+
+        //从本地文件store/config/topics.json 中加载topic配置
         boolean result = this.topicConfigManager.load();
+        // 从store/config/.. 配置文件中加载 topic 和queue 的映射
         result = result && this.topicQueueMappingManager.load();
+        //加载消费者消费的位点
         result = result && this.consumerOffsetManager.load();
+        //
         result = result && this.subscriptionGroupManager.load();
         result = result && this.consumerFilterManager.load();
         result = result && this.consumerOrderInfoManager.load();
 
         if (result) {
             try {
+                //K1  创建MessageStore 消息存储器
                 DefaultMessageStore defaultMessageStore = new DefaultMessageStore(this.messageStoreConfig, this.brokerStatsManager, this.messageArrivingListener, this.brokerConfig);
                 defaultMessageStore.setTopicConfigTable(topicConfigManager.getTopicConfigTable());
 
@@ -779,7 +786,8 @@ public class BrokerController {
             initializeRemotingServer();
 
             initializeResources();
-
+            //k1 注册procesor 扩展点，
+            //当netty 发送网络通讯的时候 ，通过扩展点进行消息处理
             registerProcessor();
 
             initializeScheduledTasks();

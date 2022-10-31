@@ -833,7 +833,7 @@ public class CommitLog implements Swappable {
                 return CompletableFuture.completedFuture(new PutMessageResult(PutMessageStatus.IN_SYNC_REPLICAS_NOT_ENOUGH, null));
             }
         }
-
+        //对topick 上一把锁
         topicQueueLock.lock(topicQueueKey);
         try {
 
@@ -1107,6 +1107,7 @@ public class CommitLog implements Swappable {
 
     private CompletableFuture<PutMessageResult> handleDiskFlushAndHA(PutMessageResult putMessageResult,
         MessageExt messageExt, int needAckNums, boolean needHandleHA) {
+        //K2 刷盘和 复制
         CompletableFuture<PutMessageStatus> flushResultFuture = handleDiskFlush(putMessageResult.getAppendMessageResult(), messageExt);
         CompletableFuture<PutMessageStatus> replicaResultFuture;
         if (!needHandleHA) {

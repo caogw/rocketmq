@@ -509,6 +509,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             int localPort = RemotingHelper.parseSocketAddressPort(ctx.channel().localAddress());
             NettyRemotingAbstract remotingAbstract = NettyRemotingServer.this.remotingServerTable.get(localPort);
             if (localPort != -1 && remotingAbstract != null) {
+                //K2 InboundHandler 处理客户端发过来的请求
                 remotingAbstract.processMessageReceived(ctx, msg);
                 return;
             }

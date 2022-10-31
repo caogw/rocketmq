@@ -182,8 +182,10 @@ public class DefaultMessageStore implements MessageStore {
         if (messageStoreConfig.isEnableDLegerCommitLog()) {
             this.commitLog = new DLedgerCommitLog(this);
         } else {
+            //k1 创建Comitlog
             this.commitLog = new CommitLog(this);
         }
+        // 消费者消费的存储
         this.consumeQueueStore = new ConsumeQueueStore(this, this.messageStoreConfig);
 
         this.flushConsumeQueueService = new FlushConsumeQueueService();
@@ -514,6 +516,7 @@ public class DefaultMessageStore implements MessageStore {
         }
 
         long beginTime = this.getSystemClock().now();
+        // K2  写入commitLog
         CompletableFuture<PutMessageResult> putResultFuture = this.commitLog.asyncPutMessage(msg);
 
         putResultFuture.thenAccept(result -> {

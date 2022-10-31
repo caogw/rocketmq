@@ -103,6 +103,9 @@ public class Configuration {
         }
 
         try {
+            //K1 合并配置文件，读写锁 readWriteLock 的应用
+            //合并配置文件使用写锁。读配置文件使用读锁。
+            //写锁lock， 那么其他的 写，读 都互斥。
             readWriteLock.writeLock().lockInterruptibly();
 
             try {

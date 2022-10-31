@@ -24,6 +24,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+// K1 解析运行的命令工具
 public class ServerUtil {
 
     public static Options buildCommandlineOptions(final Options options) {
