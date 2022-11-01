@@ -199,7 +199,7 @@ public abstract class NettyRemotingAbstract {
             return;
         }
 
-        //K2 构建一个 Runnable 任务
+        //K1  异步处理客户端发送过来的请求（初始化注册的 Processor）
         Runnable run = buildProcessRequestHandler(ctx, cmd, pair, opaque);
 
         if (pair.getObject1().rejectRequest()) {
@@ -245,7 +245,7 @@ public abstract class NettyRemotingAbstract {
                 }
 
                 if (exception == null) {
-                    // K2 消息发送扩展点执行请求并响应。SendMessageProcessor
+                    // K1 消息发送扩展点执行请求并响应。SendMessageProcessor
                     response = pair.getObject1().processRequest(ctx, cmd);
                 } else {
                     response = RemotingCommand.createResponseCommand(RemotingSysResponseCode.SYSTEM_ERROR, null);

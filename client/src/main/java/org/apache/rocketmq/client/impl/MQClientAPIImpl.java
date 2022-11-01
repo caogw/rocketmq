@@ -582,6 +582,7 @@ public class MQClientAPIImpl implements NameServerUpdateCallback {
 
         switch (communicationMode) {
             case ONEWAY:
+                //k1 nettyClient 发送消息到服务端
                 this.remotingClient.invokeOneway(addr, request, timeoutMillis);
                 return null;
             case ASYNC:

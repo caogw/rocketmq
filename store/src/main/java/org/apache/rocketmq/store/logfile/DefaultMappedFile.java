@@ -203,7 +203,7 @@ public class DefaultMappedFile extends AbstractMappedFile {
 
     public AppendMessageResult appendMessagesInner(final MessageExt messageExt, final AppendMessageCallback cb,
                                                    PutMessageContext putMessageContext) {
-        //k2 获得commotlog 文件使用mmapfile append msg
+        //k1 获得commotlog 文件使用mmapfile append msg
         assert messageExt != null;
         assert cb != null;
 
