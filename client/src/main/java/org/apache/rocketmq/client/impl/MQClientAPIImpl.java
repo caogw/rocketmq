@@ -973,7 +973,10 @@ public class MQClientAPIImpl implements NameServerUpdateCallback {
         final long timeoutMillis,
         final PullCallback pullCallback
     ) throws RemotingException, InterruptedException {
+        //k2 使用netty客户端发送拉取请求
         this.remotingClient.invokeAsync(addr, request, timeoutMillis, new InvokeCallback() {
+            //k2  执行拉取请求后的 callback  操作
+            //他是监听到有netty 服务端有read 响应后 触发的。
             @Override
             public void operationComplete(ResponseFuture responseFuture) {
                 RemotingCommand response = responseFuture.getResponseCommand();

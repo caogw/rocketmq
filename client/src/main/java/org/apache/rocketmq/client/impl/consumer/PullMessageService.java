@@ -120,6 +120,7 @@ public class PullMessageService extends ServiceThread {
     }
 
     @Override
+    //k2 执行拉取
     public void run() {
         log.info(this.getServiceName() + " service started");
 

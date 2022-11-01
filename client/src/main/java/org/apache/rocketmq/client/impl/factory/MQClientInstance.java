@@ -259,10 +259,12 @@ public class MQClientInstance {
                         this.mQClientAPIImpl.fetchNameServerAddr();
                     }
                     // Start request-response channel
+                    //k2 启动NettyClinet 客户端
                     this.mQClientAPIImpl.start();
                     // Start various schedule tasks
                     this.startScheduledTask();
                     // Start pull service
+                    //k2 开启啦消息
                     this.pullMessageService.start();
                     // Start rebalance service
                     this.rebalanceService.start();
