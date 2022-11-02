@@ -296,6 +296,8 @@ public abstract class NettyRemotingAbstract {
      */
     public void processResponseCommand(ChannelHandlerContext ctx, RemotingCommand cmd) {
         final int opaque = cmd.getOpaque();
+        //k1 处理netty的响应
+        //k2 处理netty的响应 。从responseTable 表中获取（key= opaque） responseFuture。
         final ResponseFuture responseFuture = responseTable.get(opaque);
         if (responseFuture != null) {
             responseFuture.setResponseCommand(cmd);
@@ -461,6 +463,8 @@ public abstract class NettyRemotingAbstract {
             }
 
             final ResponseFuture responseFuture = new ResponseFuture(channel, opaque, timeoutMillis - costTime, invokeCallback, once);
+            //k1 netty发送请求并把 响应的future  注册到 ResponseFuture 表中
+            //k2 netty发送请求并把 响应的future  注册到 ResponseFuture 表中
             this.responseTable.put(opaque, responseFuture);
             try {
                 channel.writeAndFlush(request).addListener((ChannelFutureListener) f -> {

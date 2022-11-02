@@ -198,7 +198,7 @@ public class PullAPIWrapper {
                 this.recalculatePullFromWhichNode(mq), false);
         if (null == findBrokerResult) {
             this.mQClientFactory.updateTopicRouteInfoFromNameServer(mq.getTopic());
-            //k2 选择要从哪个broker 拉取
+            //k2 4-选择要从哪个broker 拉取
             findBrokerResult =
                 this.mQClientFactory.findBrokerAddressInSubscribe(this.mQClientFactory.getBrokerNameFromMessageQueue(mq),
                     this.recalculatePullFromWhichNode(mq), false);
@@ -241,6 +241,7 @@ public class PullAPIWrapper {
                 brokerAddr = computePullFromWhichFilterServer(mq.getTopic(), brokerAddr);
             }
 
+            //k2 5-拉消息
             PullResult pullResult = this.mQClientFactory.getMQClientAPIImpl().pullMessage(
                 brokerAddr,
                 requestHeader,
