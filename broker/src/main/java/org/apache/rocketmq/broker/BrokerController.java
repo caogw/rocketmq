@@ -788,6 +788,7 @@ public class BrokerController {
             initializeResources();
             //k1 注册procesor 扩展点，
             //当netty 发送网络通讯的时候 ，通过扩展点进行消息处理
+            //k3 注册broker 的process
             registerProcessor();
 
             initializeScheduledTasks();

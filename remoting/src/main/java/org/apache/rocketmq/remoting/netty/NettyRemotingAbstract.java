@@ -22,11 +22,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -151,9 +147,11 @@ public abstract class NettyRemotingAbstract {
         if (msg != null) {
             switch (msg.getType()) {
                 case REQUEST_COMMAND:
+                    //k3 处理请求request  NettyServerHandler#channelRead0() 服务端收到request进行处理
                     processRequestCommand(ctx, msg);
                     break;
                 case RESPONSE_COMMAND:
+                    //k3 处理响应response NettyRemotingClient#channelRead0() 客户端收到response进行处理
                     processResponseCommand(ctx, msg);
                     break;
                 default:
@@ -186,6 +184,7 @@ public abstract class NettyRemotingAbstract {
      */
     public void processRequestCommand(final ChannelHandlerContext ctx, final RemotingCommand cmd) {
         final Pair<NettyRequestProcessor, ExecutorService> matched = this.processorTable.get(cmd.getCode());
+        //k3 找到对应的processor
         final Pair<NettyRequestProcessor, ExecutorService> pair = null == matched ? this.defaultRequestProcessorPair : matched;
         final int opaque = cmd.getOpaque();
 
@@ -200,6 +199,7 @@ public abstract class NettyRemotingAbstract {
         }
 
         //K1  异步处理客户端发送过来的请求（初始化注册的 Processor）
+        //k3 执行request 的Processor
         Runnable run = buildProcessRequestHandler(ctx, cmd, pair, opaque);
 
         if (pair.getObject1().rejectRequest()) {
@@ -245,7 +245,7 @@ public abstract class NettyRemotingAbstract {
                 }
 
                 if (exception == null) {
-                    // K1 消息发送扩展点执行请求并响应。SendMessageProcessor
+                    // K1 消息发送扩展点执行请求并响应。@SendMessageProcessor
                     response = pair.getObject1().processRequest(ctx, cmd);
                 } else {
                     response = RemotingCommand.createResponseCommand(RemotingSysResponseCode.SYSTEM_ERROR, null);
@@ -299,12 +299,14 @@ public abstract class NettyRemotingAbstract {
         //k1 处理netty的响应
         //k2 处理netty的响应 。从responseTable 表中获取（key= opaque） responseFuture。
         final ResponseFuture responseFuture = responseTable.get(opaque);
+//        System.out.println(new Date()+"响应：opaque = "+opaque+"<-----");
         if (responseFuture != null) {
             responseFuture.setResponseCommand(cmd);
 
             responseTable.remove(opaque);
 
             if (responseFuture.getInvokeCallback() != null) {
+
                 executeInvokeCallback(responseFuture);
             } else {
                 responseFuture.putResponse(cmd);
@@ -465,6 +467,7 @@ public abstract class NettyRemotingAbstract {
             final ResponseFuture responseFuture = new ResponseFuture(channel, opaque, timeoutMillis - costTime, invokeCallback, once);
             //k1 netty发送请求并把 响应的future  注册到 ResponseFuture 表中
             //k2 netty发送请求并把 响应的future  注册到 ResponseFuture 表中
+//            System.out.println(new Date()+"请求：opaque = "+opaque);
             this.responseTable.put(opaque, responseFuture);
             try {
                 channel.writeAndFlush(request).addListener((ChannelFutureListener) f -> {

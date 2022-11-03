@@ -128,13 +128,14 @@ public class PullMessageService extends ServiceThread {
             long start = System.currentTimeMillis();
             try {
                 MessageRequest messageRequest = this.messageRequestQueue.take();
+//                System.out.println(System.currentTimeMillis() - start);
                 if (messageRequest.getMessageRequestMode() == MessageRequestMode.POP) {
                     this.popMessage((PopRequest)messageRequest);
                 } else {
-                    //K1 1-1 执行拉消息的任务
+                    //K2 2-1 执行拉消息的任务
                     this.pullMessage((PullRequest)messageRequest);
                 }
-                System.out.println(System.currentTimeMillis() - start);
+
             } catch (InterruptedException ignored) {
             } catch (Exception e) {
                 log.error("Pull Message Service Run Method exception", e);
@@ -142,7 +143,7 @@ public class PullMessageService extends ServiceThread {
         }
 
 
-//            long start = System.currentTimeMillis();
+//        long start = System.currentTimeMillis();
 //            try {
 //                MessageRequest messageRequest = this.messageRequestQueue.take();
 //                if (messageRequest.getMessageRequestMode() == MessageRequestMode.POP) {
@@ -151,7 +152,6 @@ public class PullMessageService extends ServiceThread {
 //                    //K1 1-1 执行拉消息的任务
 //                    this.pullMessage((PullRequest)messageRequest);
 //                }
-//                System.out.println(System.currentTimeMillis() - start);
 //            } catch (InterruptedException ignored) {
 //            } catch (Exception e) {
 //                log.error("Pull Message Service Run Method exception", e);

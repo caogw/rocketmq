@@ -262,11 +262,13 @@ public class MQClientInstance {
                     //k2 启动NettyClinet 客户端
                     this.mQClientAPIImpl.start();
                     // Start various schedule tasks
+                    //k2 开启定时调度任务
                     this.startScheduledTask();
                     // Start pull service
                     //k2 1-开启拉消息
                     this.pullMessageService.start();
                     // Start rebalance service
+                    // k2 负载均衡开启
                     this.rebalanceService.start();
                     // Start push service
                     this.defaultMQProducer.getDefaultMQProducerImpl().start(false);
@@ -282,6 +284,7 @@ public class MQClientInstance {
     }
 
     private void startScheduledTask() {
+        //拉取namesvr
         if (null == this.clientConfig.getNamesrvAddr()) {
             this.scheduledExecutorService.scheduleAtFixedRate(() -> {
                 try {

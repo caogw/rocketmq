@@ -2577,6 +2577,7 @@ public class DefaultMessageStore implements MessageStore {
             while (!this.isStopped()) {
                 try {
                     Thread.sleep(1);
+                    //k2 调度器每1毫秒执行一次，通知hold住的消费者连接拉取消息
                     this.doReput();
                 } catch (Exception e) {
                     DefaultMessageStore.LOGGER.warn(this.getServiceName() + " service has exception. ", e);

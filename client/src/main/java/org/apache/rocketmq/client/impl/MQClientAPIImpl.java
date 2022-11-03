@@ -252,6 +252,7 @@ public class MQClientAPIImpl implements NameServerUpdateCallback {
         }
         this.remotingClient.registerRPCHook(rpcHook);
         this.remotingClient.registerRPCHook(new DynamicalExtFieldRPCHook());
+        //k3 注册client 的process
         this.remotingClient.registerProcessor(RequestCode.CHECK_TRANSACTION_STATE, this.clientRemotingProcessor, null);
 
         this.remotingClient.registerProcessor(RequestCode.NOTIFY_CONSUMER_IDS_CHANGED, this.clientRemotingProcessor, null);
