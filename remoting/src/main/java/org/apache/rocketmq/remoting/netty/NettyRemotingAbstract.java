@@ -213,6 +213,7 @@ public abstract class NettyRemotingAbstract {
         try {
             final RequestTask requestTask = new RequestTask(run, ctx.channel(), cmd);
             //async execute task, current thread return directly
+            //异步执行任务
             pair.getObject2().submit(requestTask);
         } catch (RejectedExecutionException e) {
             if ((System.currentTimeMillis() % 10000) == 0) {
@@ -245,7 +246,7 @@ public abstract class NettyRemotingAbstract {
                 }
 
                 if (exception == null) {
-                    // K1 消息发送扩展点执行请求并响应。@SendMessageProcessor
+                    // K1 消息发送扩展点执行请求并响应。@org.apache.rocketmq.broker.processor.SendMessageProcessor
                     response = pair.getObject1().processRequest(ctx, cmd);
                 } else {
                     response = RemotingCommand.createResponseCommand(RemotingSysResponseCode.SYSTEM_ERROR, null);

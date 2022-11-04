@@ -248,11 +248,11 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                         .addLast(defaultEventExecutorGroup,
                             encoder,
                             new NettyDecoder(),
-                            distributionHandler,
+                            distributionHandler, //做统计用
                             new IdleStateHandler(0, 0,
-                                nettyServerConfig.getServerChannelMaxIdleTimeSeconds()),
-                            connectionManageHandler,
-                            serverHandler
+                                nettyServerConfig.getServerChannelMaxIdleTimeSeconds()), //心跳
+                            connectionManageHandler, //连接管理器
+                            serverHandler //处理请求
                         );
                 }
             });
@@ -282,6 +282,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             @Override
             public void run() {
                 try {
+                    //扫描 ResponseTable ， 超时的（+1000）的则移除掉
                     NettyRemotingServer.this.scanResponseTable();
                 } catch (Throwable e) {
                     log.error("scanResponseTable exception", e);
@@ -347,6 +348,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
     }
 
     @Override
+    //注册processor
     public void registerProcessor(int requestCode, NettyRequestProcessor processor, ExecutorService executor) {
         ExecutorService executorThis = executor;
         if (null == executor) {

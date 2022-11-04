@@ -261,6 +261,7 @@ public class RebalancePushImpl extends RebalanceImpl {
     public void dispatchPullRequest(final List<PullRequest> pullRequestList, final long delay) {
         for (PullRequest pullRequest : pullRequestList) {
             if (delay <= 0) {
+                //k2 分发给 pushMessageService ，并放到 messageRequestQueue 中。
                 this.defaultMQPushConsumerImpl.executePullRequestImmediately(pullRequest);
             } else {
                 this.defaultMQPushConsumerImpl.executePullRequestLater(pullRequest, delay);

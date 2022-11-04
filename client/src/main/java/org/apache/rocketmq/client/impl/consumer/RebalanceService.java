@@ -40,7 +40,7 @@ public class RebalanceService extends ServiceThread {
             long start = System.currentTimeMillis();
             this.waitForRunning(waitInterval);
             this.mqClientFactory.doRebalance();
-            System.out.println(System.currentTimeMillis() - start);
+//            System.out.println(System.currentTimeMillis() - start);
         }
 //        long start = System.currentTimeMillis();
 //        this.waitForRunning(waitInterval);

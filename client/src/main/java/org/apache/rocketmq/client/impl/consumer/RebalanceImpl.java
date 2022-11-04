@@ -244,6 +244,7 @@ public abstract class RebalanceImpl {
                     if (!clientRebalance(topic) && tryQueryAssignment(topic)) {
                         balanced = this.getRebalanceResultFromBroker(topic, isOrder);
                     } else {
+                        //k2 负载均衡
                         balanced = this.rebalanceByTopic(topic, isOrder);
                     }
                 } catch (Throwable e) {
@@ -316,7 +317,9 @@ public abstract class RebalanceImpl {
                 break;
             }
             case CLUSTERING: {
+                //从topicSubscribeInfoTable中获取topic 的 所有消息队列
                 Set<MessageQueue> mqSet = this.topicSubscribeInfoTable.get(topic);
+                //向Broker端发送获取该消费组下消费者Id列表的RPC通信
                 List<String> cidAll = this.mQClientFactory.findConsumerIdList(topic, consumerGroup);
                 if (null == mqSet) {
                     if (!topic.startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
@@ -330,6 +333,8 @@ public abstract class RebalanceImpl {
                 }
 
                 if (mqSet != null && cidAll != null) {
+
+
                     List<MessageQueue> mqAll = new ArrayList<MessageQueue>();
                     mqAll.addAll(mqSet);
 
@@ -337,9 +342,9 @@ public abstract class RebalanceImpl {
                     Collections.sort(cidAll);
 
                     AllocateMessageQueueStrategy strategy = this.allocateMessageQueueStrategy;
-
                     List<MessageQueue> allocateResult = null;
                     try {
+                        //使用平均分配的算法来分配 消息队列messageQueue
                         allocateResult = strategy.allocate(
                             this.consumerGroup,
                             this.mQClientFactory.getClientId(),
@@ -354,7 +359,7 @@ public abstract class RebalanceImpl {
                     if (allocateResult != null) {
                         allocateResultSet.addAll(allocateResult);
                     }
-
+                    //k2 负载均衡对分配好的messageQueue 做过滤处理
                     boolean changed = this.updateProcessQueueTableInRebalance(topic, allocateResultSet, isOrder);
                     if (changed) {
                         log.info(
@@ -470,6 +475,13 @@ public abstract class RebalanceImpl {
         }
     }
 
+    /**
+     *
+     * @param topic
+     * @param mqSet
+     * @param isOrder
+     * @return
+     */
     private boolean updateProcessQueueTableInRebalance(final String topic, final Set<MessageQueue> mqSet,
         final boolean isOrder) {
         boolean changed = false;
@@ -496,6 +508,7 @@ public abstract class RebalanceImpl {
         }
 
         // remove message queues no longer belong me
+        //删除掉 processQueueTable 中不再 MessageQueue 集合中的元素
         for (Entry<MessageQueue, ProcessQueue> entry : removeQueueMap.entrySet()) {
             MessageQueue mq = entry.getKey();
             ProcessQueue pq = entry.getValue();
@@ -508,6 +521,7 @@ public abstract class RebalanceImpl {
         }
 
         // add new message queue
+        //添加processQueueTable 中不存在的 message queue
         boolean allMQLocked = true;
         List<PullRequest> pullRequestList = new ArrayList<PullRequest>();
         for (MessageQueue mq : mqSet) {
@@ -519,6 +533,7 @@ public abstract class RebalanceImpl {
                 }
 
                 this.removeDirtyOffset(mq);
+                //创建ProcessQueue
                 ProcessQueue pq = createProcessQueue(topic);
                 pq.setLocked(true);
                 long nextOffset = this.computePullFromWhere(mq);
@@ -530,8 +545,8 @@ public abstract class RebalanceImpl {
                         log.info("doRebalance, {}, add a new mq, {}", consumerGroup, mq);
                         PullRequest pullRequest = new PullRequest();
                         pullRequest.setConsumerGroup(consumerGroup);
-                        pullRequest.setNextOffset(nextOffset);
-                        pullRequest.setMessageQueue(mq);
+                        pullRequest.setNextOffset(nextOffset); //拉取的位置
+                        pullRequest.setMessageQueue(mq);  //消息队列
                         pullRequest.setProcessQueue(pq);
                         pullRequestList.add(pullRequest);
                         changed = true;
@@ -547,6 +562,7 @@ public abstract class RebalanceImpl {
             mQClientFactory.rebalanceLater(500);
         }
 
+        //k2 把 拉取消息的请求（PullRequest） 分发给拉取消息服务 pullMessageService 去拉取消息
         this.dispatchPullRequest(pullRequestList, 500);
 
         return changed;

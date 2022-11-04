@@ -35,6 +35,14 @@ public class AllocateMessageQueueAveragely extends AbstractAllocateMessageQueueS
         super(log);
     }
 
+    /**
+     *
+     * @param consumerGroup  当前消费者组
+     * @param currentCID 当前消费者ID
+     * @param mqAll topic中的 message queue  集合
+     * @param cidAll  当前消费者组中 消费者ID 的集合
+     * @return
+     */
     @Override
     public List<MessageQueue> allocate(String consumerGroup, String currentCID, List<MessageQueue> mqAll,
         List<String> cidAll) {
@@ -43,13 +51,15 @@ public class AllocateMessageQueueAveragely extends AbstractAllocateMessageQueueS
         if (!check(consumerGroup, currentCID, mqAll, cidAll)) {
             return result;
         }
-
+        //当前消费者的下标
         int index = cidAll.indexOf(currentCID);
+        //消息队列个数%消费者个数 取余；
         int mod = mqAll.size() % cidAll.size();
         int averageSize =
             mqAll.size() <= cidAll.size() ? 1 : (mod > 0 && index < mod ? mqAll.size() / cidAll.size()
                 + 1 : mqAll.size() / cidAll.size());
         int startIndex = (mod > 0 && index < mod) ? index * averageSize : index * averageSize + mod;
+        //最终获得一个 range， 他表示分配给了当前消费者几个队列
         int range = Math.min(averageSize, mqAll.size() - startIndex);
         for (int i = 0; i < range; i++) {
             result.add(mqAll.get((startIndex + i) % mqAll.size()));
