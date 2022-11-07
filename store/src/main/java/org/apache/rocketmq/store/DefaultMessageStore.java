@@ -713,7 +713,7 @@ public class DefaultMessageStore implements MessageStore {
         GetMessageResult getResult = new GetMessageResult();
 
         final long maxOffsetPy = this.commitLog.getMaxOffset();
-
+        //k2 broker，获取topic的消费者消费的位置
         ConsumeQueueInterface consumeQueue = findConsumeQueue(topic, queueId);
         if (consumeQueue != null) {
             minOffset = consumeQueue.getMinOffsetInQueue();
@@ -798,7 +798,7 @@ public class DefaultMessageStore implements MessageStore {
 
                                 continue;
                             }
-
+                            //k2 commitlog 中查询消息
                             SelectMappedBufferResult selectResult = this.commitLog.getMessage(offsetPy, sizePy);
                             if (null == selectResult) {
                                 if (getResult.getBufferTotalSize() == 0) {

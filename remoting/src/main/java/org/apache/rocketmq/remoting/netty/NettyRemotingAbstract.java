@@ -151,7 +151,7 @@ public abstract class NettyRemotingAbstract {
                     processRequestCommand(ctx, msg);
                     break;
                 case RESPONSE_COMMAND:
-                    //k3 处理响应response NettyRemotingClient#channelRead0() 客户端收到response进行处理
+                    //k3 处理响应response NettyClientHandler#channelRead0() 客户端收到response进行处理
                     processResponseCommand(ctx, msg);
                     break;
                 default:
