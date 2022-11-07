@@ -7,6 +7,7 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.message.MessageExt;
+import org.apache.rocketmq.common.protocol.heartbeat.MessageModel;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -31,6 +32,7 @@ public class Consumer {
 
             // 订阅一个或者多个Topic，以及Tag来过滤需要消费的消息
             consumer.subscribe("immojie-learn", "TagB");
+//            consumer.setMessageModel(MessageModel.BROADCASTING); //广播模式
 
             // 注册回调实现类来处理从broker拉取回来的消息
             consumer.registerMessageListener(new MessageListenerConcurrently() {

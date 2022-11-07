@@ -49,6 +49,8 @@ import org.apache.rocketmq.remoting.exception.RemotingTimeoutException;
 public abstract class RebalanceImpl {
     protected static final InternalLogger log = ClientLogger.getLog();
 
+    //是当前需要处理的message queue
+    //只要没重新做负载均衡 免责会伴随者整个消费者的生命周期。负载均衡中的message queue 与消费者 的桥梁
     protected final ConcurrentMap<MessageQueue, ProcessQueue> processQueueTable = new ConcurrentHashMap<MessageQueue, ProcessQueue>(64);
     protected final ConcurrentMap<MessageQueue, PopProcessQueue> popProcessQueueTable = new ConcurrentHashMap<MessageQueue, PopProcessQueue>(64);
 
